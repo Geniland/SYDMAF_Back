@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory; // Ajout pour utiliser le
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
-use APP\Models\Categories;
+use App\Models\Categories;
 
 class Produits extends Model
 {
@@ -37,4 +37,8 @@ class Produits extends Model
     {
         return $this->belongsTo(Categories::class, 'categories_id');
     }
+
+
+
+
 }

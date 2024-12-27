@@ -22,7 +22,8 @@ Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logo
 
 
 Route::post('produits', [ProduitsController::class, 'store']);
-Route::get('produits', [ProduitsController::class, 'index']);
+Route::get('/produits', [ProduitsController::class, 'index']);
+// Route::get('produits', [ProduitsController::class, 'index']);
 Route::post('categories', [CategoriesController::class, 'store']);
 
 

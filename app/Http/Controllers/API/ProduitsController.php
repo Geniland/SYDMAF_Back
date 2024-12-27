@@ -50,7 +50,7 @@ class ProduitsController extends Controller
      */
     public function index()
     {
-        $produits = Produits::with('categorie')->get();
+        $produits = Produits::with('Categories')->get();
     
         return response()->json([
             'message' => 'Liste des produits récupérée avec succès',
