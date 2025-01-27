@@ -16,6 +16,7 @@ Route::get('/user', function (Request $request) {
 
 Route::post('register', [AuthController::class, 'register']);
 Route::post('login', [AuthController::class, 'login']);
+Route::post('logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user']);
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
@@ -25,6 +26,10 @@ Route::post('produits', [ProduitsController::class, 'store']);
 Route::get('/produits', [ProduitsController::class, 'index']);
 // Route::get('produits', [ProduitsController::class, 'index']);
 Route::post('categories', [CategoriesController::class, 'store']);
+Route::get('list-categories', [CategoriesController::class, 'index']);
+Route::delete('supp-produit/{id}', [ProduitsController::class, 'destroy']);
+Route::post('modification/{id}', [ProduitsController::class, 'update']);
+
 
 
 // Route::get('categories/{id}/produits', [ProduitsController::class, 'produitsParCategorie'])->name('produits.parCategorie');

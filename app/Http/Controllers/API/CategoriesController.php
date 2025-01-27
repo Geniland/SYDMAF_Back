@@ -14,12 +14,19 @@ class CategoriesController extends Controller
      */
     public function index()
     {
-        $categories = Categories::with('produits')->get(); // Inclut les produits liés à chaque catégorie
+        // $categories = Categories::with('produits')->get(); // Inclut les produits liés à chaque catégorie
 
-        return response()->json([
-            'message' => 'Liste des catégories récupérée avec succès',
-            'categories' => $categories,
-        ], 200);
+        // return response()->json([
+        //     'message' => 'Liste des catégories récupérée avec succès',
+        //     'categories' => $categories,
+        // ], 200);
+         // Récupérer toutes les catégories
+         $categories = Categories::select('id', 'name')->get(); // Sélectionner explicitement 'id' et 'name'
+
+         return response()->json([
+             'message' => 'Liste des catégories récupérée avec succès',
+             'categories' => $categories,
+         ], 200);
     }
 
     /**

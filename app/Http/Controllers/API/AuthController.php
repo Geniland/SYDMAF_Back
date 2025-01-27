@@ -21,13 +21,32 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
+            'secret_code' => 'nullable|string', // Code d'administration facultatif
+            'phone' => 'required|string|max:15', // Numéro de téléphone obligatoire
+            
         ]);
+
+        // dd($validated); 
+        // dd($validated['secret_code'], env('ADMIN_SECRET_CODE'));
+        //    dd($validated['phone']);
+        // dd($role);
+
+        
+        // Vérifier le rôle
+
+        $role = 'user'; // Rôle par défaut
+        if (isset($validated['secret_code']) && $validated['secret_code'] === env('ADMIN_SECRET_CODE')) {
+            $role = 'admin';
+        } else{
+            $role = 'user';
+        } 
 
         // Création de l'utilisateur
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'role' => $role, // Attribuer le rôle
         ]);
 
         // Retour de la réponse avec les données de l'utilisateur et un token API
@@ -59,6 +78,11 @@ class AuthController extends Controller
             return response()->json([
                 'message' => 'Connexion réussie',
                 'token' => $token,
+                'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'role' => $user->role, // Ajout du rôle
+            ],
             ], 200);
         }
 
