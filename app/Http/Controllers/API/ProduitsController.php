@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller; // Assurez-vous d'utiliser le bon namespace
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Produits; // Modèle lié au contrôleur
+use App\Models\Categories; // Modèle lié au contrôleur
 use Illuminate\Support\Facades\Log;
 
 class ProduitsController extends Controller
@@ -122,16 +123,24 @@ class ProduitsController extends Controller
     }
 
     public function produitsParCategorie($categoryId)
-{
-    // Récupérer les produits appartenant à une catégorie spécifique
-    $produits = Produits::where('category_id', $categoryId)->with('category')->get();
+    {
+        // Vérifier si la catégorie existe
+        $category = Categories::find($categoryId);
 
-    if ($produits->isEmpty()) {
-        return response()->json(['message' => 'Aucun produit trouvé pour cette catégorie'], 404);
+        if (!$category) {
+            return response()->json([
+                'message' => 'Catégorie non trouvée'
+            ], 404);
+        }
+
+        // Récupérer les produits de cette catégorie
+        $produits = Produits::where('categories_id', $categoryId)->get();
+
+        return response()->json([
+            'category' => $category->name,
+            'products' => $produits
+        ], 200);
     }
-
-    return response()->json($produits, 200);
-}
 
 
 public function produitsMemeCategorie($produitId)

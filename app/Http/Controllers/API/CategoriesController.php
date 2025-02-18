@@ -68,19 +68,19 @@ class CategoriesController extends Controller
     /**
      * Récupérer les produits associés à une catégorie spécifique.
      */
-    // public function produitsParCategorie($categoryId)
-    // {
-    //     $category = Categories::with('produits')->find($categoryId);
+    public function produitsParCategorie($categoryId)
+    {
+        $category = Categories::with('produits')->find($categoryId);
 
-    //     if (!$category) {
-    //         return response()->json(['message' => 'Catégorie non trouvée'], 404);
-    //     }
+        if (!$category) {
+            return response()->json(['message' => 'Catégorie non trouvée'], 404);
+        }
 
-    //     return response()->json([
-    //         'category' => $category->name,
-    //         'products' => $category->produits,
-    //     ], 200);
-    // }
+        return response()->json([
+            'category' => $category->name,
+            'products' => $category->produits,
+        ], 200);
+    }
 
     /**
      * Mettre à jour une catégorie.

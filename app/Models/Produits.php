@@ -24,6 +24,7 @@ class Produits extends Model
         'price',
         'image_path',
         'categories_id',
+        // 'boutique_id',
     ];
 
     /**
@@ -37,6 +38,10 @@ class Produits extends Model
     {
         return $this->belongsTo(Categories::class, 'categories_id');
     }
+
+    // public function boutique() {
+    //     return $this->belongsTo(Boutique::class);
+    // }
 
 
 

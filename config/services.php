@@ -35,4 +35,8 @@ return [
         ],
     ],
 
+    'coinbase' => [
+        'api_key' => env('COINBASE_API_KEY'),
+    ],
+
 ];
