@@ -7,6 +7,7 @@ use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\ProduitsController;
 use App\Http\Controllers\API\CategoriesController;
 use App\Http\Controllers\API\BoutiqueController;
+use App\Http\Controllers\API\LivraisonController;
 
 
 Route::get('/user', function (Request $request) {
@@ -33,6 +34,10 @@ Route::put('edite-categories/{id}', [CategoriesController::class, 'update']);
 Route::delete('delete-categories/{id}', [CategoriesController::class, 'destroy']);
 Route::delete('supp-produit/{id}', [ProduitsController::class, 'destroy']);
 Route::post('modification/{id}', [ProduitsController::class, 'update']);
+
+
+Route::post('/livraisons', [LivraisonController::class, 'store']);
+Route::get('/livraisons', [LivraisonController::class, 'index']);
 
 // Route::post('transaction', [TransactionController::class, 'createTransaction']);
 Route::middleware('auth:sanctum')->post('/transaction', [TransactionController::class, 'createTransaction']);

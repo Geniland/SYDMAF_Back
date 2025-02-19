@@ -28,6 +28,9 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+    'admin_secret_code' => env('ADMIN_SECRET_CODE', 'default_value'),
+
+
     /*
     |--------------------------------------------------------------------------
     | Application Debug Mode

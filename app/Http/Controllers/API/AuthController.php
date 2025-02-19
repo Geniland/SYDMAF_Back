@@ -23,33 +23,25 @@ class AuthController extends Controller
             'password' => 'required|string|min:8|confirmed',
             'secret_code' => 'nullable|string', // Code d'administration facultatif
             'phone' => 'required|string|max:15', // Numéro de téléphone obligatoire
-            
         ]);
 
-        // dd($validated); 
-        // dd($validated['secret_code'], env('ADMIN_SECRET_CODE'));
-        //    dd($validated['phone']);
+        // Définition du rôle
+        $role = isset($validated['secret_code']) && $validated['secret_code'] === config('app.admin_secret_code') ? 'admin' : 'user';
         // dd($role);
 
-        
-        // Vérifier le rôle
 
-        $role = 'user'; // Rôle par défaut
-        if (isset($validated['secret_code']) && $validated['secret_code'] === env('ADMIN_SECRET_CODE')) {
-            $role = 'admin';
-        } else{
-            $role = 'user';
-        } 
+
 
         // Création de l'utilisateur
         $user = User::create([
             'name' => $validated['name'],
             'email' => $validated['email'],
             'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'], // Ajout du téléphone
             'role' => $role, // Attribuer le rôle
         ]);
 
-        // Retour de la réponse avec les données de l'utilisateur et un token API
+        // Création du token d'authentification
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -60,7 +52,7 @@ class AuthController extends Controller
     }
 
     /**
-     * Connexion de l'utilisateur pour obtenir un token.
+     * Connexion de l'utilisateur.
      */
     public function login(Request $request)
     {
@@ -70,45 +62,44 @@ class AuthController extends Controller
             'password' => 'required|string|min:8',
         ]);
 
-        // Tentative d'authentification de l'utilisateur
-        if (Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']])) {
-            $user = Auth::user();
-            $token = $user->createToken('auth_token')->plainTextToken;
-
-            return response()->json([
-                'message' => 'Connexion réussie',
-                'token' => $token,
-                'user' => [
-                'name' => $user->name,
-                'email' => $user->email,
-                'role' => $user->role, // Ajout du rôle
-            ],
-            ], 200);
+        // Vérification des identifiants
+        if (!Auth::attempt(['email' => $validated['email'], 'password' => $validated['password']])) {
+            throw ValidationException::withMessages([
+                'email' => ['Les identifiants fournis sont incorrects.'],
+            ]);
         }
 
-        throw ValidationException::withMessages([
-            'email' => ['Les informations d\'identification sont incorrectes'],
-        ]);
+        // Récupérer l'utilisateur authentifié
+        $user = Auth::user();
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'message' => 'Connexion réussie',
+            'token' => $token,
+            'user' => [
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone, // Ajout du téléphone dans la réponse
+                'role' => $user->role,
+            ],
+        ], 200);
     }
 
     /**
-     * Récupère les informations de l'utilisateur authentifié.
+     * Récupération des informations de l'utilisateur authentifié.
      */
     public function user(Request $request)
     {
-        // Récupérer l'utilisateur connecté
         return response()->json($request->user());
     }
 
     /**
-     * Déconnexion de l'utilisateur et révoquer le token.
+     * Déconnexion de l'utilisateur.
      */
     public function logout(Request $request)
     {
         // Révoquer tous les tokens de l'utilisateur
-        $request->user()->tokens->each(function ($token) {
-            $token->delete();
-        });
+        $request->user()->tokens()->delete();
 
         return response()->json(['message' => 'Déconnexion réussie']);
     }
