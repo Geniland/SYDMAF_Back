@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use App\Models\Produits; // Modèle lié au contrôleur
 use App\Models\Categories; // Modèle lié au contrôleur
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
 class ProduitsController extends Controller
 {
@@ -17,6 +18,14 @@ class ProduitsController extends Controller
     public function store(Request $request)
     {
         Log::info('Requête reçue :', $request->except('image'));
+
+        try {
+            DB::connection()->getPdo();
+            Log::info("Connexion à la base de données réussie.");
+        } catch (\Exception $e) {
+            Log::error("Impossible de se connecter à la base de données", ['error' => $e->getMessage()]);
+            return response()->json(['message' => 'Erreur de connexion à la base de données'], 500);
+        }
 
         // Validation des données reçues
         $validated = $request->validate([
@@ -38,6 +47,14 @@ class ProduitsController extends Controller
             'image_path' => $path,
             'categories_id' => $validated['categories_id'],
         ]);
+
+            // Vérifier si l'ID est bien généré
+        if (!$product->id) {
+            Log::error("L'enregistrement du produit a échoué", ['data' => $product]);
+            return response()->json(['message' => 'Erreur lors de l\'enregistrement du produit'], 500);
+        }
+
+        Log::info("Produit enregistré avec succès :", ['id' => $product->id]);
 
         // Retourne une réponse JSON
         return response()->json([
@@ -74,36 +91,54 @@ class ProduitsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $product = Produits::findOrFail($id);
+        // Log::info("Données brutes reçues :", ['data' => $request->all()]);
+        // Log::info("Nom du produit :", ['name' => $request->input('name')]);
+        
 
+        $product = Produits::find($id);
+    
+        if (!$product) {
+            // Log::error("Produit non trouvé pour l'ID: $id");
+            return response()->json(['message' => 'Produit non trouvé'], 404);
+        }
+    
         // Validation des données mises à jour
         $validated = $request->validate([
-            'name' => 'string|max:255',
-            'description' => 'string',
-            'price' => 'numeric|min:0',
-            'image' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-            
+            'name' => 'required|string|max:255',
+            'description' => 'sometimes|string',
+            'price' => 'sometimes|numeric|min:0',
+            'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
         ]);
-
-        // Mettre à jour l'image si une nouvelle est fournie
+    
+        // Log::info("Données validées :", $validated);
+    
+        // Mise à jour de l'image si une nouvelle est fournie
         if ($request->hasFile('image')) {
-            // Supprime l'ancienne image si elle existe
+            // Suppression de l'ancienne image
             if ($product->image_path && Storage::disk('public')->exists($product->image_path)) {
                 Storage::disk('public')->delete($product->image_path);
             }
-
+    
             // Upload de la nouvelle image
-            $validated['image_path'] = $request->file('image')->store('products', 'public');
+            $validated['image_path'] = $request->file('image')->store('produits', 'public');
         }
-
-        // Mise à jour du produit dans la base de données
-        $product->update($validated);
-
+    
+        // Mise à jour du produit
+        $updated = $product->update($validated);
+    
+        if (!$updated) {
+            // Log::error("Échec de la mise à jour du produit ID: $id");
+            return response()->json(['message' => 'Échec de la mise à jour'], 500);
+        }
+    
+        Log::info("Produit mis à jour avec succès : ", $product->toArray());
+    
         return response()->json([
             'message' => 'Produit mis à jour avec succès',
             'product' => $product,
         ]);
     }
+    
 
     /**
      * Supprime un produit.

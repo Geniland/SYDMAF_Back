@@ -25,15 +25,17 @@ Route::middleware('auth:sanctum')->get('/user', [AuthController::class, 'user'])
 Route::middleware('auth:sanctum')->post('/logout', [AuthController::class, 'logout']);
 
 
+// Route::put('produits/{id}', [ProduitsController::class, 'update']);
+Route::put('modification-produit/{id}', [ProduitsController::class, 'update']);
 Route::post('produits', [ProduitsController::class, 'store']);
 Route::get('/produits', [ProduitsController::class, 'index']);
-// Route::get('produits', [ProduitsController::class, 'index']);
+Route::delete('supp-produit/{id}', [ProduitsController::class, 'destroy']);
+
+
 Route::post('categories', [CategoriesController::class, 'store']);
 Route::get('list-categories', [CategoriesController::class, 'index']);
 Route::put('edite-categories/{id}', [CategoriesController::class, 'update']);
 Route::delete('delete-categories/{id}', [CategoriesController::class, 'destroy']);
-Route::delete('supp-produit/{id}', [ProduitsController::class, 'destroy']);
-Route::post('modification/{id}', [ProduitsController::class, 'update']);
 
 
 Route::post('/livraisons', [LivraisonController::class, 'store']);
