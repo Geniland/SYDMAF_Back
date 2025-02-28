@@ -108,6 +108,7 @@ class ProduitsController extends Controller
             'description' => 'sometimes|string',
             'price' => 'sometimes|numeric|min:0',
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'categories_id' => 'sometimes|exists:categories,id' ,
         ]);
     
         // Log::info("Données validées :", $validated);
@@ -131,7 +132,7 @@ class ProduitsController extends Controller
             return response()->json(['message' => 'Échec de la mise à jour'], 500);
         }
     
-        Log::info("Produit mis à jour avec succès : ", $product->toArray());
+        // Log::info("Produit mis à jour avec succès : ", $product->toArray());
     
         return response()->json([
             'message' => 'Produit mis à jour avec succès',
